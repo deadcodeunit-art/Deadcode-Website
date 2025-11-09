@@ -86,10 +86,25 @@
   <pre id="output"></pre>
 
   <script>
+    // Typing effect function
+    function typeWriter(text, element, speed = 20) {
+      element.textContent = "";
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, speed);
+    }
+
+    // Send message to backend
     async function sendMessage() {
       const input = document.getElementById("userInput").value;
       const output = document.getElementById("output");
-      output.textContent = "Thinking...";
+      typeWriter("Thinking...", output, 50);
 
       try {
         const response = await fetch("/api/ask", {
@@ -99,9 +114,9 @@
         });
 
         const data = await response.json();
-        output.textContent = data.reply || "Error: no response from server.";
+        typeWriter(data.reply || "Error: no response from server.", output);
       } catch (err) {
-        output.textContent = "Error: could not connect to server.";
+        typeWriter("Error: could not connect to server.", output);
       }
     }
   </script>
