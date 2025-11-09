@@ -140,3 +140,28 @@ footer {
         align-items: center;
     }
 }
+/* RGB animated link */
+.rgb-link {
+  font-weight: bold;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+  background-size: 1400% 1400%;
+  color: white;
+  transition: all 0.3s ease;
+  display: inline-block;
+  animation: rgbShift 10s ease infinite;
+}
+
+@keyframes rgbShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Optional: on hover slightly bigger */
+.rgb-link:hover {
+  transform: scale(1.1);
+}
+
