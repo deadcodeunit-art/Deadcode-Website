@@ -10,60 +10,13 @@
       background: #0b0c10;
       color: #c5c6c7;
       font-family: monospace;
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      padding-top: 50px;
+      height: 100vh;
     }
-    h1 {
-      color: #66fcf1;
-      margin-bottom: 20px;
-    }
-    textarea {
-      width: 80%;
-      height: 120px;
-      background: #1f2833;
-      color: #fff;
-      border: 1px solid #45a29e;
-      border-radius: 8px;
-      padding: 10px;
-      resize: none;
-      font-family: monospace;
-      font-size: 16px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: #45a29e;
-      color: black;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-      transition: all 0.2s ease;
-    }
-    button:hover {
-      background: #66fcf1;
-      color: black;
-      transform: scale(1.05);
-    }
-    pre {
-      width: 80%;
-      background: #1f2833;
-      padding: 15px;
-      border-radius: 8px;
-      white-space: pre-wrap;
-      text-align: left;
-      color: #66fcf1;
-      margin-top: 15px;
-      max-height: 300px;
-      overflow-y: auto;
-      font-size: 15px;
-    }
+
     a.back {
       position: absolute;
       top: 20px;
@@ -76,47 +29,162 @@
     a.back:hover {
       color: #66fcf1;
     }
+
+    h1 {
+      text-align: center;
+      color: #66fcf1;
+      margin: 20px 0;
+    }
+
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+      overflow-y: auto;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #45a29e;
+      color: black;
+    }
+
+    .ai {
+      align-self: flex-start;
+      background: #1f2833;
+      color: #66fcf1;
+      position: relative;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      background-color: #66fcf1;
+      margin-left: 2px;
+      animation: blink 0.7s steps(1) infinite;
+      vertical-align: bottom;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      border: none;
+      border-top: 2px solid #45a29e;
+      resize: none;
+      background: #0b0c10;
+      color: #fff;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #45a29e;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #66fcf1;
+    }
+
+    #input-container {
+      display: flex;
+      padding: 10px 20px;
+      background: #0b0c10;
+      align-items: center;
+      border-top: 1px solid #45a29e;
+    }
   </style>
 </head>
 <body>
   <a class="back" href="index.html">← Back to Deadcode Unit</a>
   <h1>🤖 Deadcode Intelligence</h1>
-  <textarea id="userInput" placeholder="Ask me to code, explain, or generate..."></textarea>
-  <button onclick="sendMessage()">Generate</button>
-  <pre id="output"></pre>
+
+  <div id="chat-container"></div>
+
+  <div id="input-container">
+    <textarea id="userInput" placeholder="Ask me to code, explain, or generate..."></textarea>
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
   <script>
-    // Typing effect function
-    function typeWriter(text, element, speed = 20) {
-      element.textContent = "";
+    const chatContainer = document.getElementById('chat-container');
+
+    function appendMessage(text, sender) {
+      const message = document.createElement('div');
+      message.classList.add('message', sender);
+
+      // typing effect
       let i = 0;
-      const interval = setInterval(() => {
+      const cursor = document.createElement('span');
+      cursor.classList.add('cursor');
+      message.appendChild(cursor);
+      chatContainer.appendChild(message);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      function type() {
         if (i < text.length) {
-          element.textContent += text.charAt(i);
+          cursor.insertAdjacentText('beforebegin', text.charAt(i));
           i++;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          setTimeout(type, 20); // typing speed
         } else {
-          clearInterval(interval);
+          cursor.remove(); // remove cursor after done
         }
-      }, speed);
+      }
+
+      type();
     }
 
-    // Send message to backend
     async function sendMessage() {
-      const input = document.getElementById("userInput").value;
-      const output = document.getElementById("output");
-      typeWriter("Thinking...", output, 50);
+      const userInput = document.getElementById("userInput");
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage(text, 'user');
+      userInput.value = '';
+
+      appendMessage('Thinking...', 'ai');
 
       try {
         const response = await fetch("/api/ask", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input })
+          body: JSON.stringify({ message: text })
         });
 
         const data = await response.json();
-        typeWriter(data.reply || "Error: no response from server.", output);
+
+        // remove last "Thinking..." message
+        chatContainer.lastChild.remove();
+
+        appendMessage(data.reply || "Error: no response from server.", 'ai');
       } catch (err) {
-        typeWriter("Error: could not connect to server.", output);
+        chatContainer.lastChild.remove();
+        appendMessage("Error: could not connect to server.", 'ai');
       }
     }
   </script>
