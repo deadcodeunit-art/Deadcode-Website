@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deadcode Intelligence</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #0b0c10;
+      color: #c5c6c7;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding-top: 50px;
+    }
+    h1 {
+      color: #66fcf1;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 80%;
+      height: 120px;
+      background: #1f2833;
+      color: #fff;
+      border: 1px solid #45a29e;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+      font-family: monospace;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #45a29e;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: #66fcf1;
+      color: black;
+      transform: scale(1.05);
+    }
+    pre {
+      width: 80%;
+      background: #1f2833;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      text-align: left;
+      color: #66fcf1;
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 15px;
+    }
+    a.back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #45a29e;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    a.back:hover {
+      color: #66fcf1;
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="index.html">← Back to Deadcode Unit</a>
+  <h1>🤖 Deadcode Intelligence</h1>
+  <textarea id="userInput" placeholder="Ask me to code, explain, or generate..."></textarea>
+  <button onclick="sendMessage()">Generate</button>
+  <pre id="output"></pre>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput").value;
+      const output = document.getElementById("output");
+      output.textContent = "Thinking...";
+
+      try {
+        const response = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: input })
+        });
+
+        const data = await response.json();
+        output.textContent = data.reply || "Error: no response from server.";
+      } catch (err) {
+        output.textContent = "Error: could not connect to server.";
+      }
+    }
+  </script>
+</body>
+</html>
