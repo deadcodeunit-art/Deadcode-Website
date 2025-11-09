@@ -1,192 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deadcode Intelligence</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background: #0b0c10;
-      color: #c5c6c7;
-      font-family: monospace;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadcode Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #0b0c10;
+    color: #c5c6c7;
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    a.back {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #45a29e;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 16px;
-    }
-    a.back:hover {
-      color: #66fcf1;
-    }
+  a.back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #45a29e;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  a.back:hover { color: #66fcf1; }
 
-    h1 {
-      text-align: center;
-      color: #66fcf1;
-      margin: 20px 0;
-    }
+  h1 {
+    text-align: center;
+    color: #66fcf1;
+    margin: 20px 0;
+    text-shadow: 0 0 10px #66fcf1, 0 0 20px #45a29e;
+  }
 
-    #chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 20px;
-      overflow-y: auto;
-      gap: 10px;
-    }
+  #chat-container {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #45a29e transparent;
+  }
 
-    .message {
-      max-width: 80%;
-      padding: 10px 15px;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-container::-webkit-scrollbar-thumb {
+    background: #45a29e;
+    border-radius: 4px;
+  }
+  #chat-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-    .user {
-      align-self: flex-end;
-      background: #45a29e;
-      color: black;
-    }
+  .message {
+    white-space: pre-wrap;
+    word-break: break-word;
+    animation: fadeIn 0.3s ease forwards;
+    line-height: 1.5em;
+  }
 
-    .ai {
-      align-self: flex-start;
-      background: #1f2833;
-      color: #66fcf1;
-      position: relative;
-    }
+  .user { color: #000; text-align: right; text-shadow: 0 0 5px #45a29e; }
+  .ai { color: #66fcf1; text-align: left; text-shadow: 0 0 5px #66fcf1; }
 
-    .cursor {
-      display: inline-block;
-      width: 8px;
-      background-color: #66fcf1;
-      margin-left: 2px;
-      animation: blink 0.7s steps(1) infinite;
-      vertical-align: bottom;
-    }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    background-color: #66fcf1;
+    margin-left: 2px;
+    animation: blink 0.7s steps(1) infinite;
+    vertical-align: bottom;
+  }
 
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0; }
-    }
+  @keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0; }
+  }
 
-    textarea {
-      width: 100%;
-      padding: 10px;
-      font-family: monospace;
-      font-size: 16px;
-      border: none;
-      border-top: 2px solid #45a29e;
-      resize: none;
-      background: #0b0c10;
-      color: #fff;
-      outline: none;
-    }
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 
-    button {
-      padding: 10px 20px;
-      background: #45a29e;
-      color: black;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      margin: 5px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+  #input-container {
+    display: flex;
+    padding: 10px 20px;
+    background: #0b0c10;
+    border-top: 1px solid #45a29e;
+  }
 
-    button:hover {
-      background: #66fcf1;
-    }
+  #userInput {
+    flex: 1;
+    padding: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    border: none;
+    background: #1f2833;
+    color: #fff;
+    outline: none;
+    border-radius: 6px;
+  }
 
-    #input-container {
-      display: flex;
-      padding: 10px 20px;
-      background: #0b0c10;
-      align-items: center;
-      border-top: 1px solid #45a29e;
-    }
-  </style>
+  button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background: #45a29e;
+    color: black;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  button:hover { background: #66fcf1; }
+</style>
 </head>
 <body>
-  <a class="back" href="index.html">← Back to Deadcode Unit</a>
-  <h1>🤖 Deadcode Intelligence</h1>
+<a class="back" href="index.html">← Back to Deadcode Unit</a>
+<h1>🤖 Deadcode Intelligence</h1>
 
-  <div id="chat-container"></div>
+<div id="chat-container"></div>
 
-  <div id="input-container">
-    <textarea id="userInput" placeholder="Ask me to code, explain, or generate..."></textarea>
-    <button onclick="sendMessage()">Send</button>
-  </div>
+<div id="input-container">
+  <textarea id="userInput" placeholder="Ask me to code, explain, or generate..." rows="1"></textarea>
+  <button onclick="sendMessage()">Send</button>
+</div>
 
-  <script>
-    const chatContainer = document.getElementById('chat-container');
+<script>
+const chatContainer = document.getElementById('chat-container');
+const inputField = document.getElementById('userInput');
 
-    function appendMessage(text, sender) {
-      const message = document.createElement('div');
-      message.classList.add('message', sender);
+function appendMessage(text, sender) {
+  const message = document.createElement('div');
+  message.classList.add('message', sender);
 
-      // typing effect
-      let i = 0;
-      const cursor = document.createElement('span');
-      cursor.classList.add('cursor');
-      message.appendChild(cursor);
-      chatContainer.appendChild(message);
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.classList.add('cursor');
+  message.appendChild(cursor);
+  chatContainer.appendChild(message);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  function type() {
+    if (i < text.length) {
+      cursor.insertAdjacentText('beforebegin', text.charAt(i));
+      i++;
       chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      function type() {
-        if (i < text.length) {
-          cursor.insertAdjacentText('beforebegin', text.charAt(i));
-          i++;
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-          setTimeout(type, 20); // typing speed
-        } else {
-          cursor.remove(); // remove cursor after done
-        }
-      }
-
-      type();
+      setTimeout(type, 20);
+    } else {
+      cursor.remove();
     }
+  }
+  type();
+}
 
-    async function sendMessage() {
-      const userInput = document.getElementById("userInput");
-      const text = userInput.value.trim();
-      if (!text) return;
+// Send message function
+async function sendMessage() {
+  const text = inputField.value.trim();
+  if (!text) return;
 
-      appendMessage(text, 'user');
-      userInput.value = '';
+  appendMessage(text, 'user');
+  inputField.value = '';
+  appendMessage('Thinking...', 'ai');
 
-      appendMessage('Thinking...', 'ai');
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await response.json();
 
-      try {
-        const response = await fetch("/api/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
-        });
+    // Remove "Thinking..."
+    chatContainer.lastChild.remove();
+    appendMessage(data.reply || "Error: no response from server.", 'ai');
+  } catch (err) {
+    chatContainer.lastChild.remove();
+    appendMessage("Error: could not connect to server.", 'ai');
+  }
+}
 
-        const data = await response.json();
-
-        // remove last "Thinking..." message
-        chatContainer.lastChild.remove();
-
-        appendMessage(data.reply || "Error: no response from server.", 'ai');
-      } catch (err) {
-        chatContainer.lastChild.remove();
-        appendMessage("Error: could not connect to server.", 'ai');
-      }
-    }
-  </script>
+// Press Enter to send
+inputField.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+</script>
 </body>
 </html>
