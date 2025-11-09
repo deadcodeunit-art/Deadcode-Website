@@ -140,6 +140,7 @@ footer {
         align-items: center;
     }
 }
+
 /* RGB animated link */
 .rgb-link {
   font-weight: bold;
@@ -149,8 +150,9 @@ footer {
   background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
   background-size: 1400% 1400%;
   color: white;
-  transition: all 0.3s ease;
   display: inline-block;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   animation: rgbShift 10s ease infinite;
 }
 
@@ -160,8 +162,9 @@ footer {
   100% { background-position: 0% 50%; }
 }
 
-/* Optional: on hover slightly bigger */
+/* Optional hover effect */
 .rgb-link:hover {
   transform: scale(1.1);
+  transition: transform 0.3s ease;
 }
 
