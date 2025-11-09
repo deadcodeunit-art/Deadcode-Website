@@ -1,7 +1,6 @@
-// api/ask.js
 export default async function handler(req, res) {
   try {
-    const { message } = await req.json();
+    const { message } = await req.body; // make sure req.body is used
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -17,12 +16,9 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    if (!data.choices) {
-      return res.status(500).json({ reply: "Error: no response from OpenAI." });
-    }
-
-    res.json({ reply: data.choices[0].message.content });
+    res.status(200).json({ reply: data.choices[0].message.content });
   } catch (error) {
-    res.status(500).json({ reply: "Error connecting to server." });
+    console.log(error); // this helps see the error in Vercel logs
+    res.status(500).json({ reply: "Error: could not connect to OpenAI." });
   }
 }
