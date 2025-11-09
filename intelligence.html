@@ -146,17 +146,24 @@ function appendMessage(text, sender) {
   message.classList.add('message', sender);
 
   if(sender === 'ai') {
-    // Detect code blocks with ```lang ... ```
+    // Split text into code blocks and normal text
     const codeRegex = /```(.*?)\n([\s\S]*?)```/g;
     let lastIndex = 0;
     let match;
+
+    function typeText(target, str, index = 0) {
+      if(index < str.length) {
+        target.textContent += str.charAt(index);
+        setTimeout(() => typeText(target, str, index + 1), 15); // 15ms per character
+      }
+    }
 
     while((match = codeRegex.exec(text)) !== null) {
       const normalText = text.slice(lastIndex, match.index);
       if(normalText.trim() !== '') {
         const span = document.createElement('span');
-        span.textContent = normalText;
         message.appendChild(span);
+        typeText(span, normalText);
       }
 
       const pre = document.createElement('pre');
@@ -172,8 +179,8 @@ function appendMessage(text, sender) {
     const remainingText = text.slice(lastIndex);
     if(remainingText.trim() !== '') {
       const span = document.createElement('span');
-      span.textContent = remainingText;
       message.appendChild(span);
+      typeText(span, remainingText);
     }
 
     Prism.highlightAll();
@@ -184,6 +191,7 @@ function appendMessage(text, sender) {
   chatContainer.appendChild(message);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
 
 // Replace this with your backend API route or OpenAI fetch
 async function sendMessage() {
