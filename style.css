@@ -1,0 +1,142 @@
+/* Global */
+body, h1, h2, p, a {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', sans-serif;
+}
+body {
+    background-color: #111;
+    color: #eee;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: #222;
+    padding: 20px;
+    text-align: center;
+}
+header .logo {
+    width: 120px;
+    margin-bottom: 10px;
+    transition: transform 0.3s;
+}
+header .logo:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+header nav a {
+    color: #00ffcc;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+header nav a:hover {
+    color: #ff00ff;
+}
+
+/* Sections */
+section {
+    padding: 50px 20px;
+    text-align: center;
+}
+section h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+/* Project Gallery */
+.project-gallery {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+.project {
+    width: 250px;
+    text-align: center;
+}
+.project img {
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+.project img:hover {
+    transform: scale(1.05);
+}
+
+/* Blog */
+.blog-post {
+    background-color: #222;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 500px;
+    border-radius: 10px;
+    transition: transform 0.3s;
+}
+.blog-post:hover {
+    transform: scale(1.02);
+}
+.blog-post button {
+    background-color: #00ffcc;
+    color: #111;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.blog-post button:hover {
+    background-color: #ff00ff;
+    transform: scale(1.05);
+}
+
+/* Team */
+.team-members {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+.member a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.member img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #00ffcc;
+    transition: transform 0.3s, border-color 0.3s;
+}
+.member img:hover {
+    transform: scale(1.1);
+    border-color: #ff00ff;
+}
+
+/* Footer */
+footer {
+    background-color: #222;
+    padding: 20px;
+    text-align: center;
+    color: #00ffcc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .team-members {
+        flex-direction: column;
+        align-items: center;
+    }
+    .project-gallery {
+        flex-direction: column;
+        align-items: center;
+    }
+}
