@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Deadcode Intelligence</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" />
 
   <style>
     body {
@@ -53,7 +53,7 @@
     }
 
     .message.user { color: #66fcf1; }
-    .message.ai { color: #fff; }
+    .message.ai { color: #ffffff; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -138,7 +138,6 @@
   </div>
 
   <script>
-    const API_KEY = "YOUR_OPENAI_KEY_HERE"; // replace this with your real key
     const chatContainer = document.getElementById("chat");
     const skull = document.getElementById("skull");
 
@@ -183,22 +182,16 @@
       startTalking();
 
       try {
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages: [{ role: "user", content: input }] })
-         });
-        });const response = await fetch("/api/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ messages: [{ role: "user", content: input }] })
-});
-
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [{ role: "user", content: input }] })
+        });
 
         const data = await response.json();
         stopTalking();
 
-        const reply = data.choices[0].message.content;
+        const reply = data.choices?.[0]?.message?.content || "No response.";
         appendMessage("Deadcode Intelligence: " + reply, "ai");
       } catch (err) {
         stopTalking();
