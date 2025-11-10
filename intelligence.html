@@ -14,17 +14,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       height: 100vh;
-      padding: 20px;
       margin: 0;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     h1 {
       color: #66fcf1;
       text-shadow: 0 0 10px #45a29e;
-      margin-bottom: 20px;
+      margin: 15px 0;
       animation: flicker 2s infinite alternate;
     }
 
@@ -35,7 +34,7 @@
     }
 
     #chat {
-      width: 80%;
+      width: 90%;
       max-width: 900px;
       background: rgba(31, 40, 51, 0.9);
       padding: 20px;
@@ -43,6 +42,7 @@
       box-shadow: 0 0 20px #45a29e;
       overflow-y: auto;
       flex-grow: 1;
+      margin-bottom: 10px;
     }
 
     .message {
@@ -60,10 +60,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    #inputBar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      border-top: 1px solid #45a29e;
+    }
+
     #userInput {
-      width: 80%;
-      max-width: 900px;
-      height: 70px;
+      flex-grow: 1;
+      max-width: 800px;
+      height: 60px;
       background: #1f2833;
       color: #fff;
       border: 2px solid #45a29e;
@@ -72,10 +82,10 @@
       resize: none;
       font-size: 16px;
       font-family: monospace;
+      margin-right: 10px;
     }
 
     button {
-      margin-top: 10px;
       padding: 10px 20px;
       background: #45a29e;
       color: black;
@@ -90,8 +100,8 @@
 
     a.back {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 15px;
+      left: 15px;
       color: #45a29e;
       text-decoration: none;
       font-weight: bold;
@@ -100,10 +110,10 @@
     /* Talking Skull */
     #talking-skull {
       position: fixed;
-      bottom: 40px;
-      left: 40px;
-      width: 90px;
-      height: 90px;
+      bottom: 110px;
+      left: 30px;
+      width: 80px;
+      height: 80px;
       z-index: 999;
     }
 
@@ -130,8 +140,10 @@
 
   <div id="chat"></div>
 
-  <textarea id="userInput" placeholder="Ask Deadcode Intelligence anything about coding..."></textarea>
-  <button onclick="sendMessage()">Generate</button>
+  <div id="inputBar">
+    <textarea id="userInput" placeholder="Ask Deadcode Intelligence anything about coding..."></textarea>
+    <button id="sendBtn">Generate</button>
+  </div>
 
   <div id="talking-skull">
     <img id="skull" src="images/skull_closed.png" alt="Deadcode Skull">
@@ -140,8 +152,11 @@
   <script>
     const chatContainer = document.getElementById("chat");
     const skull = document.getElementById("skull");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-    document.getElementById("userInput").addEventListener("keypress", function(e) {
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", function(e) {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
@@ -174,20 +189,21 @@
     }
 
     async function sendMessage() {
-      const input = document.getElementById("userInput").value.trim();
-      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
 
-      appendMessage("You: " + input, "user");
-      document.getElementById("userInput").value = "";
+      appendMessage("You: " + text, "user");
+      input.value = "";
       startTalking();
 
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [{ role: "user", content: input }] })
+          body: JSON.stringify({ messages: [{ role: "user", content: text }] })
         });
 
+        if (!response.ok) throw new Error("Network error");
         const data = await response.json();
         stopTalking();
 
@@ -195,7 +211,7 @@
         appendMessage("Deadcode Intelligence: " + reply, "ai");
       } catch (err) {
         stopTalking();
-        appendMessage("Error connecting to server.", "ai");
+        appendMessage("⚠️ Error connecting to server.", "ai");
       }
     }
   </script>
