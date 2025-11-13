@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Deadcode Intelligence</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" />
   <style>
     body {
       background: #0b0c10;
@@ -13,11 +15,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       height: 100vh;
       padding: 20px;
       margin: 0;
-      overflow-x: hidden;
     }
 
     h1 {
@@ -28,9 +28,8 @@
     }
 
     @keyframes flicker {
-      0% { opacity: 1; text-shadow: 0 0 5px #45a29e; }
+      0%,100% { opacity: 1; text-shadow: 0 0 5px #45a29e; }
       50% { opacity: 0.9; text-shadow: 0 0 15px #66fcf1; }
-      100% { opacity: 1; text-shadow: 0 0 5px #45a29e; }
     }
 
     #chat {
@@ -47,13 +46,13 @@
 
     .message {
       margin: 10px 0;
-      line-height: 1.5;
       white-space: pre-wrap;
+      line-height: 1.5;
       animation: fadeIn 0.3s ease-in-out;
     }
 
     .message.user { color: #66fcf1; }
-    .message.ai { color: #fff; }
+    .message.ai { color: #ffffff; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -97,15 +96,6 @@
 
     button:hover { background: #66fcf1; }
 
-    a.back {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #45a29e;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
     #talking-skull {
       position: fixed;
       bottom: 100px;
@@ -132,21 +122,133 @@
   </style>
 </head>
 <body>
-  <a class="back" href="index.html">← Back to Deadcode Unit</a>
-  <h1>🤖 Deadcode Intelligence</h1>
-
+  <a href="index.html" style="color:#45a29e;position:absolute;top:20px;left:20px;text-decoration:none;">← Back</a>
+  <h1>💀 Deadcode Intelligence</h1>
   <div id="chat"></div>
 
   <div id="input-container">
     <textarea id="userInput" placeholder="Ask Deadcode Intelligence anything about coding..."></textarea>
     <button id="sendBtn">Generate</button>
+    <button id="voiceBtn">🎙 Talk</button>
+    <audio id="voiceOut"></audio>
+    <button onclick="makePicture()">🖼️ Generate Picture</button>
+    <button onclick="makeVideo()">🎞️ Generate Video</button>
+    <img id="videoPreview" style="max-width:80%; margin-top:10px;">
   </div>
 
   <div id="talking-skull">
-    <img id="skull" src="images/skull_closed.png" alt="Deadcode Skull">
+    <img id="skull" src="images/skull_closed.png" alt="Deadcode Skull" />
   </div>
 
   <script>
+// load old chat
+const saved = JSON.parse(localStorage.getItem("deadcodeHistory") || "[]");
+saved.forEach(msg => appendMessage(msg.text, msg.sender));
+
+// save new chat
+function saveMessage(text, sender) {
+  saved.push({ text, sender });
+  if (saved.length > 20) saved.shift(); // keep last 20
+  localStorage.setItem("deadcodeHistory", JSON.stringify(saved));
+}
+
+// every time you show a message
+// after appendMessage(...):
+saveMessage(text, sender);
+
+    async function makeVideo() {
+      const topic = prompt("What should the video be about?");
+      if (!topic) return;
+
+      const frames = [
+        topic + " cinematic intro",
+        topic + " dramatic moment",
+        topic + " action scene",
+        topic + " ending"
+      ];
+
+      const images = [];
+      for (const f of frames) {
+        const res = await fetch("/api/image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: f })
+        });
+        const data = await res.json();
+        images.push(data.data[0].url);
+      }
+
+      const preview = document.getElementById("videoPreview");
+      let i = 0;
+      setInterval(() => {
+        preview.src = images[i % images.length];
+        i++;
+      }, 1000); // change picture every second
+    }
+
+    async function makePicture() {
+      const prompt = prompt("What picture should I make?");
+      if (!prompt) return;
+      const response = await fetch("/api/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await response.json();
+      const url = data.data[0].url;
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.style.maxWidth = "80%";
+      document.getElementById("chat").appendChild(img);
+    }
+
+    // 🎙 TALKING FEATURE (like Gemini)
+    const voiceBtn = document.getElementById("voiceBtn");
+    const voiceOut = document.getElementById("voiceOut");
+
+    // speech-to-text (you talk → turns into text)
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+
+    // when you press the Talk button
+    voiceBtn.onclick = () => {
+      recognition.start();
+      appendMessage("🎤 Listening...", "ai");
+    };
+
+    // when it hears you
+    recognition.onresult = async (event) => {
+      const text = event.results[0][0].transcript;
+      appendMessage("You (voice): " + text, "user");
+      await talkToAI(text);
+    };
+
+    async function talkToAI(input) {
+      skull.classList.add("talking");
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: input })
+        });
+        const data = await res.json();
+        const reply = data.reply || "I didn’t get that.";
+        skull.classList.remove("talking");
+        appendMessage("Deadcode Intelligence (voice): " + reply, "ai");
+
+    // text-to-speech (it talks back)
+        const talk = new SpeechSynthesisUtterance(reply);
+        talk.pitch = 0.9;
+        talk.rate = 1.0;
+        speechSynthesis.speak(talk);
+      } catch (err) {
+        skull.classList.remove("talking");
+        appendMessage("⚠️ Voice error: " + err.message, "ai");
+      }
+    }
+
     const chatContainer = document.getElementById("chat");
     const skull = document.getElementById("skull");
     const sendBtn = document.getElementById("sendBtn");
@@ -160,22 +262,28 @@
       }
     });
 
-    function appendMessage(text, sender) {
-      const message = document.createElement("div");
-      message.classList.add("message", sender);
-      chatContainer.appendChild(message);
-
-      let i = 0;
-      function typeEffect() {
-        if (i < text.length) {
-          message.textContent += text.charAt(i);
-          i++;
-          setTimeout(typeEffect, 15);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-      }
-      typeEffect();
+    // 💻 Show normal text or code blocks nicely
+if (reply.includes("```")) {
+  const parts = reply.split("```");
+  parts.forEach((part, index) => {
+    if (index % 2 === 0) {
+      // normal text
+      appendMessage(part, "ai");
+    } else {
+      // code part
+      const codeBlock = document.createElement("pre");
+      const code = document.createElement("code");
+      code.classList.add("language-javascript"); // you can change to language-csharp, etc.
+      code.textContent = part;
+      codeBlock.appendChild(code);
+      chatContainer.appendChild(codeBlock);
+      Prism.highlightElement(code); // color the code
     }
+  });
+} else {
+  appendMessage("Deadcode Intelligence: " + reply, "ai");
+}
+
 
     function startTalking() { skull.classList.add("talking"); }
     function stopTalking() { skull.classList.remove("talking"); }
@@ -183,7 +291,6 @@
     async function sendMessage() {
       const input = userInput.value.trim();
       if (!input) return;
-
       appendMessage("You: " + input, "user");
       userInput.value = "";
       startTalking();
@@ -194,16 +301,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: input }),
         });
-
         const data = await response.json();
         stopTalking();
 
-        if (data.reply) {
-          appendMessage("Deadcode Intelligence: " + data.reply, "ai");
-        } else {
-          appendMessage("⚠️ Error: No response.", "ai");
-        }
-      } catch (err) {
+        if (data.reply) appendMessage("Deadcode Intelligence: " + data.reply, "ai");
+        else appendMessage("⚠️ Error: No response.", "ai");
+      } catch {
         stopTalking();
         appendMessage("⚠️ Error connecting to server.", "ai");
       }
