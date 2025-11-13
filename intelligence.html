@@ -1,316 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Deadcode Intelligence</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+  <!-- Futuristic font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Prism for code highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
   <style>
-    body {
-      background: #0b0c10;
-      color: #c5c6c7;
-      font-family: "Orbitron", monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-      padding: 20px;
-      margin: 0;
+    :root{
+      --bg:#0b0c10; --panel:#1f2833; --accent:#45a29e; --cyan:#66fcf1; --muted:#c5c6c7;
     }
-
-    h1 {
-      color: #66fcf1;
-      text-shadow: 0 0 10px #45a29e;
-      margin-bottom: 10px;
-      animation: flicker 2s infinite alternate;
-    }
-
-    @keyframes flicker {
-      0%,100% { opacity: 1; text-shadow: 0 0 5px #45a29e; }
-      50% { opacity: 0.9; text-shadow: 0 0 15px #66fcf1; }
-    }
-
-    #chat {
-      width: 80%;
-      max-width: 900px;
-      background: rgba(31, 40, 51, 0.9);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px #45a29e;
-      overflow-y: auto;
-      flex-grow: 1;
-      margin-bottom: 15px;
-    }
-
-    .message {
-      margin: 10px 0;
-      white-space: pre-wrap;
-      line-height: 1.5;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .message.user { color: #66fcf1; }
-    .message.ai { color: #ffffff; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    #input-container {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
-      position: fixed;
-      bottom: 20px;
-      width: 80%;
-      max-width: 900px;
-    }
-
-    #userInput {
-      flex: 1;
-      height: 60px;
-      background: #1f2833;
-      color: #fff;
-      border: 2px solid #45a29e;
-      border-radius: 10px;
-      padding: 10px;
-      resize: none;
-      font-size: 16px;
-      font-family: monospace;
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #45a29e;
-      color: black;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-
-    button:hover { background: #66fcf1; }
-
-    #talking-skull {
-      position: fixed;
-      bottom: 100px;
-      left: 40px;
-      width: 90px;
-      height: 90px;
-      z-index: 999;
-    }
-
-    #skull {
-      width: 100%;
-      height: auto;
-    }
-
-    .talking {
-      animation: talk 0.3s infinite;
-    }
-
-    @keyframes talk {
-      0% { content: url('images/skull_closed.png'); }
-      50% { content: url('images/skull_open.png'); }
-      100% { content: url('images/skull_closed.png'); }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--muted);font-family:"Orbitron",monospace}
+    a.back{position:absolute;left:18px;top:16px;color:var(--accent);text-decoration:none;font-weight:700}
+    header{display:flex;align-items:center;gap:16px;justify-content:center;padding:16px 0}
+    h1{color:var(--cyan);margin:0;text-shadow:0 0 12px rgba(102,252,241,.12)}
+    #wrap{display:flex;flex-direction:column;align-items:center;height:100vh;padding:16px;box-sizing:border-box;gap:12px}
+    #chat{width:90%;max-width:1100px;background:rgba(31,40,51,0.92);border-radius:14px;padding:20px;box-shadow:0 8px 30px rgba(69,162,158,.06);overflow:auto;flex:1}
+    .message{margin:8px 0;white-space:pre-wrap;line-height:1.45}
+    .message.user{text-align:right;color:#000;text-shadow:0 0 6px rgba(69,162,158,.12)}
+    .message.ai{color:var(--cyan);text-align:left}
+    pre{background:#12161b;color:var(--cyan);padding:12px;border-radius:8px;overflow:auto}
+    #controls{width:90%;max-width:1100px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    #input-area{display:flex;flex:1;gap:10px;align-items:center}
+    #userInput{flex:1;border-radius:10px;padding:12px;border:2px solid var(--accent);background:var(--panel);color:white;font-family:monospace;height:64px;resize:none}
+    .btn{background:var(--accent);color:black;padding:10px 14px;border-radius:8px;border:none;font-weight:700;cursor:pointer}
+    .btn:hover{background:var(--cyan)}
+    #talking-skull{position:fixed;left:24px;bottom:110px;width:92px;height:92px;z-index:999}
+    #skull{width:100%}
+    /* typing cursor for inline typing */
+    .cursor{display:inline-block;width:10px;height:1em;background:var(--cyan);margin-left:6px;vertical-align:bottom;animation:blink .75s steps(2) infinite}
+    @keyframes blink{50%{opacity:0}}
+    /* small responsive */
+    @media(max-width:700px){
+      #userInput{height:56px}
+      #talking-skull{width:72px;bottom:120px;left:10px}
     }
   </style>
 </head>
 <body>
-  <a href="index.html" style="color:#45a29e;position:absolute;top:20px;left:20px;text-decoration:none;">← Back</a>
-  <h1>💀 Deadcode Intelligence</h1>
-  <div id="chat"></div>
+  <a class="back" href="index.html">← Back to Deadcode Unit</a>
 
-  <div id="input-container">
-    <textarea id="userInput" placeholder="Ask Deadcode Intelligence anything about coding..."></textarea>
-    <button id="sendBtn">Generate</button>
-    <button id="voiceBtn">🎙 Talk</button>
-    <audio id="voiceOut"></audio>
-    <button onclick="makePicture()">🖼️ Generate Picture</button>
-    <button onclick="makeVideo()">🎞️ Generate Video</button>
-    <img id="videoPreview" style="max-width:80%; margin-top:10px;">
+  <div id="wrap">
+    <header><h1>🤖 Deadcode Intelligence</h1></header>
+
+    <div id="chat" aria-live="polite"></div>
+
+    <div id="controls">
+      <div id="input-area">
+        <textarea id="userInput" placeholder="Ask Deadcode Intelligence anything about coding, art, or games..."></textarea>
+        <button id="sendBtn" class="btn">Generate</button>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="voiceBtn" class="btn" title="Press to talk">🎙 Talk</button>
+        <button id="imageBtn" class="btn" title="Generate an image">🖼️ Image</button>
+        <button id="videoBtn" class="btn" title="Generate a short video (slideshow)">🎞️ Video</button>
+        <button id="clearMemoryBtn" class="btn" title="Clear local memory">🧠 Clear Memory</button>
+      </div>
+    </div>
   </div>
 
   <div id="talking-skull">
-    <img id="skull" src="images/skull_closed.png" alt="Deadcode Skull" />
+    <img id="skull" src="images/skull_closed.png" alt="Deadcode Skull">
   </div>
 
   <script>
-// load old chat
-const saved = JSON.parse(localStorage.getItem("deadcodeHistory") || "[]");
-saved.forEach(msg => appendMessage(msg.text, msg.sender));
+  /***********************
+   *  Utilities & state  *
+   ************************/
+  const chatEl = document.getElementById('chat');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const voiceBtn = document.getElementById('voiceBtn');
+  const imageBtn = document.getElementById('imageBtn');
+  const videoBtn = document.getElementById('videoBtn');
+  const clearMemoryBtn = document.getElementById('clearMemoryBtn');
+  const skull = document.getElementById('skull');
 
-// save new chat
-function saveMessage(text, sender) {
-  saved.push({ text, sender });
-  if (saved.length > 20) saved.shift(); // keep last 20
-  localStorage.setItem("deadcodeHistory", JSON.stringify(saved));
-}
+  // persistent local user id for memory context
+  let userId = localStorage.getItem('dc_user_id');
+  if(!userId){ userId = crypto.randomUUID(); localStorage.setItem('dc_user_id', userId); }
 
-// every time you show a message
-// after appendMessage(...):
-saveMessage(text, sender);
+  // local message cache (keeps a short local memory & shows on reload)
+  let LOCAL_HISTORY = JSON.parse(localStorage.getItem('deadcodeHistory') || '[]');
 
-    async function makeVideo() {
-      const topic = prompt("What should the video be about?");
-      if (!topic) return;
+  function saveLocalHistory(){ localStorage.setItem('deadcodeHistory', JSON.stringify(LOCAL_HISTORY)); }
+  function pushLocalMessage(text, sender){
+    LOCAL_HISTORY.push({text, sender, ts:new Date().toISOString()});
+    if(LOCAL_HISTORY.length>50) LOCAL_HISTORY.shift();
+    saveLocalHistory();
+  }
 
-      const frames = [
-        topic + " cinematic intro",
-        topic + " dramatic moment",
-        topic + " action scene",
-        topic + " ending"
-      ];
-
-      const images = [];
-      for (const f of frames) {
-        const res = await fetch("/api/image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: f })
-        });
-        const data = await res.json();
-        images.push(data.data[0].url);
-      }
-
-      const preview = document.getElementById("videoPreview");
-      let i = 0;
-      setInterval(() => {
-        preview.src = images[i % images.length];
-        i++;
-      }, 1000); // change picture every second
+  // load previous messages
+  (function loadHistory(){
+    for(const m of LOCAL_HISTORY){
+      const el = buildMessageEl(m.text, m.sender, false);
+      chatEl.appendChild(el);
     }
+    chatEl.scrollTop = chatEl.scrollHeight;
+  })();
 
-    async function makePicture() {
-      const prompt = prompt("What picture should I make?");
-      if (!prompt) return;
-      const response = await fetch("/api/image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await response.json();
-      const url = data.data[0].url;
-
-      const img = document.createElement("img");
-      img.src = url;
-      img.style.maxWidth = "80%";
-      document.getElementById("chat").appendChild(img);
-    }
-
-    // 🎙 TALKING FEATURE (like Gemini)
-    const voiceBtn = document.getElementById("voiceBtn");
-    const voiceOut = document.getElementById("voiceOut");
-
-    // speech-to-text (you talk → turns into text)
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-
-    // when you press the Talk button
-    voiceBtn.onclick = () => {
-      recognition.start();
-      appendMessage("🎤 Listening...", "ai");
-    };
-
-    // when it hears you
-    recognition.onresult = async (event) => {
-      const text = event.results[0][0].transcript;
-      appendMessage("You (voice): " + text, "user");
-      await talkToAI(text);
-    };
-
-    async function talkToAI(input) {
-      skull.classList.add("talking");
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input })
-        });
-        const data = await res.json();
-        const reply = data.reply || "I didn’t get that.";
-        skull.classList.remove("talking");
-        appendMessage("Deadcode Intelligence (voice): " + reply, "ai");
-
-    // text-to-speech (it talks back)
-        const talk = new SpeechSynthesisUtterance(reply);
-        talk.pitch = 0.9;
-        talk.rate = 1.0;
-        speechSynthesis.speak(talk);
-      } catch (err) {
-        skull.classList.remove("talking");
-        appendMessage("⚠️ Voice error: " + err.message, "ai");
-      }
-    }
-
-    const chatContainer = document.getElementById("chat");
-    const skull = document.getElementById("skull");
-    const sendBtn = document.getElementById("sendBtn");
-    const userInput = document.getElementById("userInput");
-
-    sendBtn.addEventListener("click", sendMessage);
-    userInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    // 💻 Show normal text or code blocks nicely
-if (reply.includes("```")) {
-  const parts = reply.split("```");
-  parts.forEach((part, index) => {
-    if (index % 2 === 0) {
-      // normal text
-      appendMessage(part, "ai");
+  /***********************
+   *  UI helpers         *
+   ************************/
+  function buildMessageEl(text, sender, withTypingCursor=true){
+    const d = document.createElement('div');
+    d.className = 'message ' + sender;
+    if(withTypingCursor){
+      // we'll populate with typewriter
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      d.appendChild(cursor);
+      // keep text in dataset until typed
+      d.dataset.text = text;
     } else {
-      // code part
-      const codeBlock = document.createElement("pre");
-      const code = document.createElement("code");
-      code.classList.add("language-javascript"); // you can change to language-csharp, etc.
-      code.textContent = part;
-      codeBlock.appendChild(code);
-      chatContainer.appendChild(codeBlock);
-      Prism.highlightElement(code); // color the code
+      d.textContent = text;
+    }
+    return d;
+  }
+
+  // append plain element (like <pre> <code> or <img>)
+  function appendElement(el){
+    chatEl.appendChild(el);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  /***********************
+   *  Typing functions   *
+   ************************/
+  // type normal text into element with cursor
+  function typeTextIntoElement(el, text, speed=16){
+    return new Promise(resolve=>{
+      const cursor = el.querySelector('.cursor');
+      let i=0;
+      function step(){
+        if(i < text.length){
+          cursor.insertAdjacentText('beforebegin', text.charAt(i));
+          i++;
+          chatEl.scrollTop = chatEl.scrollHeight;
+          setTimeout(step, speed);
+        } else {
+          if(cursor) cursor.remove();
+          resolve();
+        }
+      }
+      step();
+    });
+  }
+
+  // type code into <pre><code> (keeps raw while typing, then highlight)
+  async function typeCodeBlock(codeText, language='javascript', speed=10){
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.className = 'language-' + language;
+    pre.appendChild(code);
+    appendElement(pre);
+
+    // type into code element char-by-char
+    let i=0;
+    while(i < codeText.length){
+      code.textContent += codeText.charAt(i);
+      i++;
+      chatEl.scrollTop = chatEl.scrollHeight;
+      await new Promise(r=>setTimeout(r,speed));
+    }
+    // highlight
+    Prism.highlightElement(code);
+  }
+
+  /***********************
+   *  Code block parsing *
+   ************************/
+  // splits reply into text and code blocks (```lang\ncode```)
+  function parseReplyIntoParts(reply){
+    const regex = /```(\w+)?\n([\s\S]*?)```/g;
+    let parts = [];
+    let lastIndex = 0;
+    let m;
+    while((m = regex.exec(reply)) !== null){
+      const before = reply.slice(lastIndex, m.index);
+      if(before) parts.push({type:'text', content: before});
+      const lang = m[1] || 'javascript';
+      parts.push({type:'code', lang, content: m[2]});
+      lastIndex = m.index + m[0].length;
+    }
+    const rest = reply.slice(lastIndex);
+    if(rest) parts.push({type:'text', content: rest});
+    return parts;
+  }
+
+  /***********************
+   *  Skull animation    *
+   ************************/
+  function startTalking(){ skull.classList.add('talking'); }
+  function stopTalking(){ skull.classList.remove('talking'); }
+
+  // CSS @keyframes 'talk' uses content switches in vercel file; fallback: swap src every frame as backup if needed.
+  let skullTalkInterval = null;
+  function startTalkingFallback(){
+    if(skullTalkInterval) return;
+    let open = false;
+    skullTalkInterval = setInterval(()=>{
+      skull.src = open ? 'images/skull_open.png' : 'images/skull_closed.png';
+      open = !open;
+    }, 220);
+  }
+  function stopTalkingFallback(){
+    if(skullTalkInterval){ clearInterval(skullTalkInterval); skullTalkInterval = null; skull.src='images/skull_closed.png' }
+  }
+
+  /***********************
+   *  Server calls       *
+   ************************/
+  async function callChatServer(message){
+    // returns {reply: "..."}
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ message, userId })
+    });
+    if(!res.ok) throw new Error('Server error');
+    return res.json();
+  }
+
+  async function callImageServer(prompt){
+    const res = await fetch('/api/image', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt })
+    });
+    if(!res.ok) throw new Error('Image server error');
+    return res.json();
+  }
+
+  async function callMemorySave(item){
+    // optional server memory endpoint
+    try{
+      await fetch('/api/memory', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(item)
+      });
+    }catch(e){}
+  }
+
+  /***********************
+   *  UI flow: send msg  *
+   ************************/
+  async function sendMessage(){
+    const text = userInput.value.trim();
+    if(!text) return;
+    // show user message immediately
+    const userEl = buildMessageEl("You: " + text, 'user', false);
+    appendElement(userEl);
+    pushLocalMessage("You: " + text, 'user');
+
+    userInput.value = '';
+    // show AI placeholder
+    const aiEl = buildMessageEl('', 'ai', true); // cursor shown until typed
+    appendElement(aiEl);
+    startTalking(); startTalkingFallback();
+
+    try{
+      // call server
+      const data = await callChatServer(text); // expects {reply}
+      const reply = data.reply || data.result || 'No reply';
+      // save memory server-side optionally
+      callMemorySave({ userId, role:'user', content: text });
+      callMemorySave({ userId, role:'assistant', content: reply });
+
+      // parse reply into text & code parts
+      const parts = parseReplyIntoParts(reply);
+
+      // remove the placeholder aiEl (just created) because we'll render parts sequentially
+      if(aiEl && aiEl.parentNode) aiEl.parentNode.removeChild(aiEl);
+
+      // render parts sequentially (type text and code)
+      for(const p of parts){
+        if(p.type === 'text'){
+          const el = buildMessageEl('', 'ai', true);
+          appendElement(el);
+          await typeTextIntoElement(el, p.content, 14);
+          pushLocalMessage('Deadcode Intelligence: ' + p.content, 'ai');
+        } else { // code
+          await typeCodeBlock(p.content, p.lang, 8);
+          pushLocalMessage('Deadcode Intelligence (code): ' + p.content, 'ai');
+        }
+      }
+
+      // speak the reply (TTS)
+      speakText(reply);
+    } catch(err){
+      console.error(err);
+      // show error in ai
+      if(aiEl && aiEl.parentNode) aiEl.parentNode.removeChild(aiEl);
+      const errEl = buildMessageEl('⚠️ Error connecting to server.', 'ai', false);
+      appendElement(errEl);
+      pushLocalMessage('⚠️ Error connecting to server.', 'ai');
+    } finally{
+      stopTalking(); stopTalkingFallback();
+    }
+  }
+
+  /***********************
+   *  Text-To-Speech     *
+   ************************/
+  function speakText(text){
+    if(!('speechSynthesis' in window)) return;
+    try{
+      const u = new SpeechSynthesisUtterance(text);
+      u.pitch = 0.9;
+      u.rate = 1.0;
+      // choose a voice if you want:
+      // const voices = speechSynthesis.getVoices(); u.voice = voices.find(v=>v.lang.startsWith('en')) || null;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }catch(e){ console.warn('TTS fail',e); }
+  }
+
+  /***********************
+   *  Voice (STT)        *
+   ************************/
+  let recognition = null;
+  function initSpeechRecognition(){
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SpeechRec) return null;
+    recognition = new SpeechRec();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = ()=> { console.log('rec started'); }
+    recognition.onerror = (ev)=> { console.log('rec error', ev); appendElement(buildMessageEl('⚠️ Voice recognition error', 'ai', false)); }
+    recognition.onend = ()=> { console.log('rec ended'); }
+    recognition.onresult = async (ev) => {
+      const text = ev.results[0][0].transcript;
+      appendElement(buildMessageEl('You (voice): ' + text, 'user', false));
+      pushLocalMessage('You (voice): ' + text, 'user');
+      await sendMessageFromVoice(text);
+    };
+    return recognition;
+  }
+
+  async function sendMessageFromVoice(text){
+    // mimic sendMessage flow but using provided text
+    startTalking(); startTalkingFallback();
+    const aiEl = buildMessageEl('', 'ai', true);
+    appendElement(aiEl);
+
+    try{
+      const data = await callChatServer(text);
+      const reply = data.reply || 'No reply';
+      if(aiEl && aiEl.parentNode) aiEl.parentNode.removeChild(aiEl);
+
+      const parts = parseReplyIntoParts(reply);
+      for(const p of parts){
+        if(p.type==='text'){
+          const el = buildMessageEl('', 'ai', true);
+          appendElement(el);
+          await typeTextIntoElement(el, p.content, 14);
+          pushLocalMessage('Deadcode Intelligence: ' + p.content, 'ai');
+        } else {
+          await typeCodeBlock(p.content, p.lang, 8);
+          pushLocalMessage('Deadcode Intelligence (code): ' + p.content, 'ai');
+        }
+      }
+      speakText(reply);
+    }catch(e){
+      console.error(e);
+      if(aiEl && aiEl.parentNode) aiEl.parentNode.removeChild(aiEl);
+      appendElement(buildMessageEl('⚠️ Voice error connecting to server.', 'ai', false));
+    } finally {
+      stopTalking(); stopTalkingFallback();
+    }
+  }
+
+  // init recognition object (if supported)
+  initSpeechRecognition();
+
+  /***********************
+   *  Image & Video      *
+   ************************/
+  async function makePicture(){
+    const prompt = promptUserFor('Describe the image you want');
+    if(!prompt) return;
+    const placeHolder = buildMessageEl('Generating image for: ' + prompt, 'ai', false);
+    appendElement(placeHolder);
+    try{
+      const data = await callImageServer(prompt); // expects {image: 'url' } or {data:[{url}]}
+      const url = data.image || (data.data && data.data[0] && (data.data[0].url || (data.data[0].b64_json && `data:image/png;base64,${data.data[0].b64_json}`)));
+      if(!url) throw new Error('no url');
+      const img = document.createElement('img'); img.src = url; img.style.maxWidth='90%'; img.style.borderRadius='10px'; img.style.marginTop='8px';
+      appendElement(img);
+      pushLocalMessage('[Image] ' + prompt, 'ai');
+    }catch(e){
+      console.error(e);
+      appendElement(buildMessageEl('⚠️ Image generation failed.', 'ai', false));
+    }
+  }
+
+  // simple slideshow "video" generator that requests a few images and shows them quickly
+  async function makeVideo(){
+    const topic = promptUserFor('What should the short video be about?');
+    if(!topic) return;
+    appendElement(buildMessageEl('Generating short video frames...', 'ai', false));
+    const frames = [
+      `${topic} cinematic scene, wide shot`,
+      `${topic} close-up dramatic moment`,
+      `${topic} action scene, dynamic`,
+      `${topic} closing scene, cinematic`
+    ];
+    try{
+      const urls = [];
+      for(const f of frames){
+        const data = await callImageServer(f);
+        const url = data.image || (data.data && data.data[0] && (data.data[0].url || (data.data[0].b64_json && `data:image/png;base64,${data.data[0].b64_json}`)));
+        if(url) urls.push(url);
+      }
+      if(urls.length===0) throw new Error('no frames');
+
+      // show preview element
+      const preview = document.createElement('img');
+      preview.id = 'videoPreview';
+      preview.style.maxWidth = '90%';
+      preview.style.borderRadius = '8px';
+      appendElement(preview);
+
+      let i=0;
+      const iv = setInterval(()=>{
+        preview.src = urls[i % urls.length];
+        i++;
+      }, 800);
+
+      // stop after ~6 seconds
+      setTimeout(()=> clearInterval(iv), 800 * urls.length * 2);
+      pushLocalMessage('[Video slideshow] ' + topic, 'ai');
+    }catch(e){
+      console.error(e);
+      appendElement(buildMessageEl('⚠️ Video generation failed.', 'ai', false));
+    }
+  }
+
+  /***********************
+   *  Helpers & events   *
+   ************************/
+  function promptUserFor(message){
+    return prompt(message); // simple browser prompt for now
+  }
+
+  // Clear local memory
+  clearMemoryBtn.addEventListener('click', ()=>{
+    if(confirm('Clear saved local conversation history?')) {
+      LOCAL_HISTORY = []; saveLocalHistory();
+      chatEl.innerHTML = '';
     }
   });
-} else {
-  appendMessage("Deadcode Intelligence: " + reply, "ai");
-}
 
+  // Send on button or Enter (shift+enter new line)
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  });
 
-    function startTalking() { skull.classList.add("talking"); }
-    function stopTalking() { skull.classList.remove("talking"); }
-
-    async function sendMessage() {
-      const input = userInput.value.trim();
-      if (!input) return;
-      appendMessage("You: " + input, "user");
-      userInput.value = "";
-      startTalking();
-
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input }),
-        });
-        const data = await response.json();
-        stopTalking();
-
-        if (data.reply) appendMessage("Deadcode Intelligence: " + data.reply, "ai");
-        else appendMessage("⚠️ Error: No response.", "ai");
-      } catch {
-        stopTalking();
-        appendMessage("⚠️ Error connecting to server.", "ai");
-      }
+  // Voice button: start recognition if available
+  voiceBtn.addEventListener('click', ()=>{
+    if(!recognition){
+      alert('Voice recognition not supported in this browser (Chrome/Edge recommended).');
+      return;
     }
+    try{
+      recognition.start();
+    }catch(e){ console.warn(e); }
+  });
+
+  // Image and video buttons
+  imageBtn.addEventListener('click', makePicture);
+  videoBtn.addEventListener('click', makeVideo);
+
+  // Save messages after each append - monkey-patch appendElement to save
+  const originalAppend = appendElement;
+  window.appendElement = function(el){
+    originalAppend(el);
+    // also store latest element text plainly for reload; skip large images
+    try{
+      if(el.tagName === 'DIV' && el.classList.contains('message')){
+        // if message has innerText
+        const txt = el.innerText || el.textContent || '';
+        if(txt) pushLocalMessage(txt, el.classList.contains('user') ? 'user' : 'ai');
+      }
+    }catch(e){}
+  };
+
+  // Done
+  console.log('Deadcode Intelligence UI loaded. userId:', userId);
   </script>
 </body>
 </html>
