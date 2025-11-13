@@ -1,9 +1,9 @@
 {
-  "version": 2,
+  "version": 3,
   "functions": {
-    "api/chat.js": { "runtime": "nodejs18.x" },
-    "api/image.js": { "runtime": "nodejs18.x" },
-    "api/memory.js": { "runtime": "nodejs18.x" }
+    "api/chat.js": { "runtime": "vercel-nodejs@4.0.0" },
+    "api/image.js": { "runtime": "vercel-nodejs@4.0.0" },
+    "api/memory.js": { "runtime": "vercel-nodejs@4.0.0" }
   },
   "routes": [
     { "src": "/api/chat", "dest": "/api/chat.js" },
